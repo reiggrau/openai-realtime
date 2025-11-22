@@ -1,26 +1,72 @@
+/* 
+ * Global Styles for OpenAI Realtime Application
+ * 
+ * This file contains the main styling configuration using:
+ * - Tailwind CSS for utility-first styling
+ * - CSS Custom Properties for theme management
+ * - Automatic dark mode support
+ */
+
+/* Import Tailwind CSS utilities and components */
 @import "tailwindcss";
 
+/* 
+ * Root-level CSS Custom Properties (CSS Variables)
+ * These define the base color scheme for light mode
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+	--background: #ffffff; /* Light mode background - pure white */
+	--foreground: #171717; /* Light mode text - dark gray */
 }
 
+/* 
+ * Tailwind CSS Theme Configuration
+ * Maps our custom properties to Tailwind's color system
+ * This allows us to use classes like 'bg-background' and 'text-foreground'
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+	--color-background: var(
+		--background
+	); /* Background color for utility classes */
+	--color-foreground: var(--foreground); /* Text color for utility classes */
+	--font-sans: var(--font-geist-sans); /* Sans-serif font family */
+	--font-mono: var(--font-geist-mono); /* Monospace font family */
+
+	/* Custom gradient configurations */
+	--gradient-radial: radial-gradient(circle, var(--tw-gradient-stops));
 }
 
+/* 
+ * Dark Mode Support
+ * Automatically applies when user's system preference is set to dark mode
+ * or when dark mode is manually triggered
+ */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	:root {
+		--background: #0a0a0a; /* Dark mode background - very dark gray */
+		--foreground: #ededed; /* Dark mode text - light gray */
+	}
 }
 
+/* 
+ * Base Body Styles
+ * Applied to the entire application
+ */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+	background: var(--background); /* Use theme-aware background color */
+	color: var(--foreground); /* Use theme-aware text color */
+	font-family: Arial, Helvetica, sans-serif; /* Fallback font stack */
+}
+
+/* 
+ * Custom Gradient Backgrounds
+ * Radial gradient utility for creating center-focused gradients
+ */
+.bg-gradient-radial {
+	background: radial-gradient(circle, #374151 0%, #1f2937 50%, #000000 100%);
+	/* Creates a radial gradient from:
+	 * - Center (0%): Gray-700 (#374151) - dark grey
+	 * - Middle (50%): Gray-800 (#1f2937) - darker grey transition
+	 * - Edges (100%): Black (#000000) - pure black
+	 */
 }

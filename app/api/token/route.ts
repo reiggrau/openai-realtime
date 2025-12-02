@@ -3,9 +3,9 @@
  * This keeps the API key secure on the server side
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
 	try {
 		// 1. Retrieve OPENAI_API_KEY from environment variables
 		const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
@@ -32,8 +32,10 @@ export async function GET(request: NextRequest) {
 
 		const ephemeralToken: string = data.value;
 
+		// 3. Return the ephemeral token in the response
 		return NextResponse.json({ ephemeralToken }, { status: 200 });
 	} catch (error) {
+		// 4. Handle errors
 		console.error('Error fetching ephemeral token:', error);
 		return NextResponse.json(
 			{ error: 'Internal Server Error' },

@@ -3,13 +3,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { RealtimeAgent, RealtimeSession } from '@openai/agents-realtime';
 
-export default function RealtimeCore() {
-	const [ephemeralToken, setEphemeralToken] = useState<string | null>(null);
-	const [isConnected, setIsConnected] = useState<boolean>(false);
+import ConnectButton from './ConnectButton';
 
+export default function RealtimeCore() {
 	// Use refs to prevent duplicate connections and store session
 	const hasInitialized = useRef(false);
 	const sessionRef = useRef<RealtimeSession | null>(null);
+
+	const [ephemeralToken, setEphemeralToken] = useState<string | null>(null);
+	const [isConnected, setIsConnected] = useState<boolean>(false);
 
 	useEffect(() => {
 		// 0. Prevent duplicate initialization (like React StrictMode double render)
@@ -19,7 +21,6 @@ export default function RealtimeCore() {
 		async function init() {
 			// 1. Fetch the client ephemeral token
 			let token: string | null = null;
-
 			try {
 				const response = await fetch('/api/token');
 
@@ -32,11 +33,10 @@ export default function RealtimeCore() {
 				console.log('Fetched ephemeral token:', token);
 				setEphemeralToken(token);
 			} catch (e) {
-				console.error('Error fetching client secrets:', e);
+				console.error('Error fetching ephemeral token:', e);
 			}
 
 			// 2. Create a RealtimeAgent instance and a session
-			console.log('Creating RealtimeAgent and Session...');
 			try {
 				const agent = new RealtimeAgent({
 					name: 'Assistant',
@@ -48,12 +48,7 @@ export default function RealtimeCore() {
 				});
 
 				sessionRef.current = session;
-
-				// 3. Connect the session using the fetched ephemeral token
-				await session.connect({ apiKey: token! });
-				console.log('Realtime session connected successfully!');
-
-				setIsConnected(true);
+				console.log('Created Realtime session:', session);
 			} catch (e) {
 				console.error('Error connecting to Realtime session:', e);
 			}
@@ -76,9 +71,12 @@ export default function RealtimeCore() {
 
 	return (
 		<div id="realtime-core" className="h-full w-full">
-			<p>
-				Realtime Connection Status: {isConnected ? 'Connected' : 'Disconnected'}
-			</p>
+			<ConnectButton
+				session={sessionRef.current}
+				ephemeralToken={ephemeralToken}
+				isConnected={isConnected}
+				setIsConnected={setIsConnected}
+			/>
 		</div>
 	);
 }

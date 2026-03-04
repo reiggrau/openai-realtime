@@ -9,37 +9,37 @@ export function getSpacePositions(count: number) {
 	return positions;
 }
 
-// GALAXY
+// RING (gaussian width)
 export function getCorePositions(count: number, coreSize: number) {
 	const positions = new Float32Array(count * 3);
-	const arms = 4; // number of spiral arms
-	const twist = 3.0; // how tightly the arms wind (radians over full radius)
-	const spread = 0.35; // angular spread around each arm (radians)
+	const ringRadius = coreSize * 0.4; // center of the ring
+	const ringWidth = coreSize * 0.08; // gaussian standard deviation (radial thickness)
 
 	for (let i = 0; i < count * 3; i = i + 3) {
-		// Pick a random arm
-		const arm = Math.floor(Math.random() * arms);
-		const armAngle = (arm / arms) * Math.PI * 2;
+		// Random angle around the ring
+		const theta = Math.random() * Math.PI * 2;
 
-		// Radial distance: power-law so most stars cluster near the center
-		const t = Math.random(); // 0..1
-		const r = Math.pow(t, 1.6) * coreSize * 0.5;
+		// Gaussian offset from the ring center (Box-Muller)
+		const u1 = Math.random() || 1e-10;
+		const u2 = Math.random();
+		const gaussian =
+			Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
 
-		// Spiral angle: increases with distance from center
-		const spiralAngle = armAngle + (r / (coreSize * 0.5)) * twist;
+		const r = ringRadius + gaussian * ringWidth;
 
-		// Scatter perpendicular to the arm (gaussian-ish)
-		const scatter = (Math.random() + Math.random() + Math.random()) / 3.0 - 0.5;
-		const theta = spiralAngle + scatter * spread * (1.0 + r * 0.3);
-
-		// XY plane is the disc, Z is the thin axis
 		positions[i + 0] = r * Math.cos(theta); // X
 		positions[i + 1] = r * Math.sin(theta); // Y
 
-		// Thin disc: vertical scatter decreases with radius
-		const heightSpread = 0.06 * coreSize * (1.0 - t * 0.7);
-		positions[i + 2] =
-			(Math.random() - 0.5) * 2.0 * heightSpread * Math.random(); // Z
+		// Thin disc: slight vertical scatter
+		const heightSpread = coreSize * 0.015;
+		const gz =
+			Math.sqrt(-2.0 * Math.log(Math.random() || 1e-10)) *
+			Math.cos(2.0 * Math.PI * Math.random());
+		positions[i + 2] = gz * heightSpread; // Z
 	}
 	return positions;
+}
+
+export function gaussianRandom() {
+	return (Math.random() + Math.random() + Math.random()) / 3.0;
 }

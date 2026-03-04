@@ -11,7 +11,7 @@ import { getCorePositions, getSpacePositions } from './positions';
 export default class ThreeJsParticles {
 	// Settings
 	count = 10000;
-	coreSize = 10;
+	coreSize = 5;
 	currentView: 'space' | 'core' = 'space';
 
 	time = 0;
@@ -72,7 +72,7 @@ export default class ThreeJsParticles {
 		this.container.appendChild(this.renderer.domElement);
 
 		// HELPER
-		this.scene.add(new THREE.AxesHelper(1));
+		// this.scene.add(new THREE.AxesHelper(1));
 
 		// RESIZE
 		window.addEventListener('resize', this.resize.bind(this));
@@ -96,7 +96,7 @@ export default class ThreeJsParticles {
 			const properties = new Float32Array(count * 3);
 
 			for (let i = 0; i < count * 3; i = i + 3) {
-				properties[i + 0] = Math.random() + 0.1; // Size - Avoid 0
+				properties[i + 0] = (Math.random() + 0.1) * 2; // Size - Avoid 0
 				properties[i + 1] = 3000 + Math.random() * 22000; // Color 3000 to 25000 K
 				properties[i + 2] = Math.random(); // Animation shift (0 to 1)
 			}

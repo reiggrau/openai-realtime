@@ -1,4 +1,4 @@
-import type { NextConfig } from "next"; // Import the NextConfig type for proper TypeScript support
+import type { NextConfig } from 'next'; // Import the NextConfig type for proper TypeScript support
 
 /**
  * Next.js Configuration
@@ -20,6 +20,22 @@ import type { NextConfig } from "next"; // Import the NextConfig type for proper
  * - images: { domains: ['example.com'] } (allow external image domains)
  */
 const nextConfig: NextConfig = {
+	turbopack: {
+		rules: {
+			'*.glsl': {
+				loaders: ['raw-loader'],
+				as: '*.js',
+			},
+		},
+	},
+	webpack(config) {
+		config.module.rules.push({
+			test: /\.(glsl)$/i,
+			type: 'asset/source',
+		});
+
+		return config;
+	},
 	/*
 	 * Configuration options can be added here as the project grows.
 	 * For now, using Next.js defaults which provide:

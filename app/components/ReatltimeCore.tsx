@@ -5,7 +5,11 @@ import { RealtimeAgent, RealtimeSession } from '@openai/agents-realtime';
 
 import ConnectButton from './ConnectButton';
 
-export default function RealtimeCore() {
+interface Props {
+	setParticlesView: (view: 'space' | 'core') => void;
+}
+
+export default function RealtimeCore({ setParticlesView }: Props) {
 	// Use refs to prevent duplicate connections and store session
 	const hasInitialized = useRef(false);
 	const sessionRef = useRef<RealtimeSession | null>(null);

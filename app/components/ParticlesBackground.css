@@ -1,0 +1,10 @@
+#ParticlesBackground {
+	position: absolute;
+	inset: 0;
+	width: 100vw;
+	height: 100vh;
+	overflow: hidden;
+	pointer-events: none;
+	/* background: radial-gradient(ellipse at center, #1f2937, #111827, #000000); */
+	z-index: -1;
+}

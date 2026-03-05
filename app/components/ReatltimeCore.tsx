@@ -2,13 +2,14 @@
 
 import './RealtimeCore.css';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { RealtimeAgent, RealtimeSession } from '@openai/agents-realtime';
 
 import lookupPolicy from '../lib/tools/lookupPolicy';
 
 import ConnectButton from './ConnectButton';
 import MicButton from './MicButton';
+import Transcription, { type SubtitleEntry } from './Transcription';
 
 interface Props {
 	setParticlesView: (view: 'space' | 'core') => void;
@@ -22,6 +23,8 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 	const [ephemeralToken, setEphemeralToken] = useState<string | null>(null);
 	const [isConnected, setIsConnected] = useState<boolean>(false);
 	const [isMuted, setIsMuted] = useState<boolean>(false);
+	const [subtitle, setSubtitle] = useState<SubtitleEntry | null>(null);
+	const fadeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	function toggleMute() {
 		const session = sessionRef.current;
@@ -33,8 +36,20 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 
 	// Reset mute when disconnected
 	useEffect(() => {
-		if (!isConnected) setIsMuted(false);
+		if (!isConnected) {
+			setIsMuted(false);
+			setSubtitle(null);
+		}
 	}, [isConnected]);
+
+	const showSubtitle = useCallback(
+		(entry: SubtitleEntry, durationMs = 6000) => {
+			if (fadeTimerRef.current) clearTimeout(fadeTimerRef.current);
+			setSubtitle(entry);
+			fadeTimerRef.current = setTimeout(() => setSubtitle(null), durationMs);
+		},
+		[],
+	);
 
 	useEffect(() => {
 		// 0. Prevent duplicate initialization (like React StrictMode double render)
@@ -74,6 +89,42 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 
 				sessionRef.current = session;
 				console.log('Created Realtime session:', session);
+
+				// Listen for history updates (assistant transcript)
+				session.on('history_updated', (history) => {
+					// Find the last assistant message
+					for (let i = history.length - 1; i >= 0; i--) {
+						const item = history[i];
+						if (item.type === 'message' && item.role === 'assistant') {
+							const transcript = item.content
+								?.map(
+									(c: { transcript?: string | null; text?: string }) =>
+										c.transcript ?? c.text ?? '',
+								)
+								.join('')
+								.trim();
+							if (transcript) {
+								showSubtitle({ type: 'assistant', text: transcript });
+							}
+							break;
+						}
+					}
+				});
+
+				// Listen for tool calls
+				session.on('agent_tool_start', (_ctx, _agent, tool) => {
+					showSubtitle(
+						{ type: 'tool', text: `Calling tool: ${tool.name}` },
+						4000,
+					);
+				});
+
+				session.on('agent_tool_end', (_ctx, _agent, tool) => {
+					showSubtitle(
+						{ type: 'tool', text: `Tool ${tool.name} completed` },
+						3000,
+					);
+				});
 			} catch (e) {
 				console.error('Error connecting to Realtime session:', e);
 			}
@@ -92,18 +143,22 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 			}
 			hasInitialized.current = false;
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return (
-		<div id="realtime-core">
-			<ConnectButton
-				session={sessionRef.current}
-				ephemeralToken={ephemeralToken}
-				isConnected={isConnected}
-				setIsConnected={setIsConnected}
-				setParticlesView={setParticlesView}
-			/>
-			{isConnected && <MicButton isMuted={isMuted} onToggle={toggleMute} />}
-		</div>
+		<>
+			<Transcription entry={subtitle} />
+			<div id="realtime-core">
+				<ConnectButton
+					session={sessionRef.current}
+					ephemeralToken={ephemeralToken}
+					isConnected={isConnected}
+					setIsConnected={setIsConnected}
+					setParticlesView={setParticlesView}
+				/>
+				{isConnected && <MicButton isMuted={isMuted} onToggle={toggleMute} />}
+			</div>
+		</>
 	);
 }

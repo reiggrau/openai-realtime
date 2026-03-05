@@ -1,0 +1,41 @@
+#transcription {
+	position: fixed;
+	bottom: 18%;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 10;
+	max-width: 70vw;
+	text-align: center;
+	pointer-events: none;
+}
+
+#transcription .subtitle {
+	display: inline-block;
+	background: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(6px);
+	padding: 8px 20px;
+	border-radius: 8px;
+	font-size: 15px;
+	line-height: 1.5;
+	color: #e0e0e0;
+	letter-spacing: 0.3px;
+}
+
+#transcription .subtitle .label {
+	font-weight: 600;
+	margin-right: 6px;
+}
+
+#transcription .subtitle .label.assistant {
+	color: #4ade80;
+}
+
+#transcription .subtitle .label.tool {
+	color: #f5a623;
+}
+
+#transcription .subtitle .tool-info {
+	color: #f5a623;
+	font-style: italic;
+	font-size: 13px;
+}

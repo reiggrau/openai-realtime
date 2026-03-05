@@ -1,0 +1,22 @@
+.micBtn {
+	background: transparent;
+	border: none;
+	cursor: pointer;
+	color: #4ade80;
+	transition:
+		color 0.3s,
+		opacity 0.3s;
+	padding: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.micBtn:hover {
+	opacity: 0.8;
+}
+
+.muted {
+	color: #f87171;
+	opacity: 0.5;
+}

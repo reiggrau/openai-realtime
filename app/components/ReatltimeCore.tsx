@@ -1,11 +1,14 @@
 'use client';
 
+import './RealtimeCore.css';
+
 import { useEffect, useRef, useState } from 'react';
 import { RealtimeAgent, RealtimeSession } from '@openai/agents-realtime';
 
 import lookupPolicy from '../lib/tools/lookupPolicy';
 
 import ConnectButton from './ConnectButton';
+import MicButton from './MicButton';
 
 interface Props {
 	setParticlesView: (view: 'space' | 'core') => void;
@@ -18,6 +21,20 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 
 	const [ephemeralToken, setEphemeralToken] = useState<string | null>(null);
 	const [isConnected, setIsConnected] = useState<boolean>(false);
+	const [isMuted, setIsMuted] = useState<boolean>(false);
+
+	function toggleMute() {
+		const session = sessionRef.current;
+		if (!session || !isConnected) return;
+		const newMuted = !isMuted;
+		session.mute(newMuted);
+		setIsMuted(newMuted);
+	}
+
+	// Reset mute when disconnected
+	useEffect(() => {
+		if (!isConnected) setIsMuted(false);
+	}, [isConnected]);
 
 	useEffect(() => {
 		// 0. Prevent duplicate initialization (like React StrictMode double render)
@@ -78,7 +95,7 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 	}, []);
 
 	return (
-		<div id="realtime-core" className="h-full w-full">
+		<div id="realtime-core">
 			<ConnectButton
 				session={sessionRef.current}
 				ephemeralToken={ephemeralToken}
@@ -86,6 +103,7 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 				setIsConnected={setIsConnected}
 				setParticlesView={setParticlesView}
 			/>
+			{isConnected && <MicButton isMuted={isMuted} onToggle={toggleMute} />}
 		</div>
 	);
 }

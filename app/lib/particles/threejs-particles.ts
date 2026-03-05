@@ -6,7 +6,7 @@ import * as THREE from 'three';
 
 import vertexShader from './glsl/vertex.glsl';
 import fragmentShader from './glsl/fragment.glsl';
-import { getGalaxyPositions, getSpacePositions } from './positions';
+import { getRingPositions, getSpacePositions } from './positions';
 
 export default class ThreeJsParticles {
 	// Settings
@@ -86,7 +86,7 @@ export default class ThreeJsParticles {
 		this.spacePositions = getSpacePositions(this.count);
 
 		// Core (spiral galaxy seen from above — Z is up)
-		this.corePositions = getGalaxyPositions(this.count, this.coreSize);
+		this.corePositions = getRingPositions(this.count, this.coreSize);
 
 		const startPositions =
 			this.currentView === 'space' ? this.spacePositions : this.corePositions;

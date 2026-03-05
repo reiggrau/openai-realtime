@@ -19,7 +19,16 @@ void main() {
 	float temperature = aProperties.y;
 	float phase = aProperties.z * 6.28318530718;
 
-	// Audio reactivity: push particles radially outward from center.
+	// Orbital rotation: Keplerian-like differential rotation around Z axis.
+	// Computed on rest position so audio push doesn't change the orbit angle.
+	float orbitR = length(pos.xy);
+	float omega = 0.0004 / pow(orbitR + 0.05, 1.5);    // +0.05 avoids singularity at center
+	float angle = uTime * omega;
+	float cosA = cos(angle);
+	float sinA = sin(angle);
+	pos.xy = vec2(cosA * pos.x - sinA * pos.y, sinA * pos.x + cosA * pos.y);
+
+	// Audio reactivity: push particles radially outward from center (after orbit).
 	// Smaller stars (lighter) are pushed more; bigger stars (heavier) barely move.
 	float weight = clamp(size / 2.0, 0.1, 1.0);        // size ~0.2–4.2 → weight 0.1–1.0
 	float invWeight = 1.0 - weight * weight;             // quadratic falloff: big stars nearly anchored

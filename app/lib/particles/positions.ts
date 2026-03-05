@@ -12,7 +12,7 @@ export function getSpacePositions(count: number) {
 // RING (gaussian width) — kept for future use
 export function getRingPositions(count: number, coreSize: number) {
 	const positions = new Float32Array(count * 3);
-	const ringRadius = coreSize * 0.2; // center of the ring
+	const ringRadius = coreSize * 0.3; // center of the ring
 	const ringWidth = coreSize * 0.08; // gaussian standard deviation (radial thickness)
 
 	for (let i = 0; i < count * 3; i = i + 3) {

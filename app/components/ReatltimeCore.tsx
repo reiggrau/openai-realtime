@@ -46,7 +46,8 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 			try {
 				const agent = new RealtimeAgent({
 					name: 'Assistant',
-					instructions: 'You are a helpful assistant.',
+					instructions:
+						"Et dius Samantha, i ets una assistent virtual d'intel·ligència artificial d'última generació de l'asseguradora ACME, especialitzada en atenció al client i en respondre preguntes sobre la pòlissa d'assegurança. Ets capaç de consultar la pòlissa de l'usuari gràcies a la tecnologia RAG. Si no trobes informació sobre la pregunta de l'usuari, respon que no saps la resposta en comptes d'inventar-te-la, i ofereix a l'usuari contactar amb un agent humà per obtenir més informació.",
 					tools: [lookupPolicy], // Add the lookupPolicy tool to the agent
 				});
 
@@ -83,6 +84,7 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 				ephemeralToken={ephemeralToken}
 				isConnected={isConnected}
 				setIsConnected={setIsConnected}
+				setParticlesView={setParticlesView}
 			/>
 		</div>
 	);

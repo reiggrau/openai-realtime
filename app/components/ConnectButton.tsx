@@ -7,6 +7,7 @@ interface Props {
 	ephemeralToken: string | null;
 	isConnected: boolean;
 	setIsConnected: (connected: boolean) => void;
+	setParticlesView: (view: 'space' | 'core') => void;
 }
 
 export default function ConnectButton({
@@ -14,6 +15,7 @@ export default function ConnectButton({
 	ephemeralToken,
 	isConnected,
 	setIsConnected,
+	setParticlesView,
 }: Props) {
 	const [inChanging, setInChanging] = useState(false);
 
@@ -26,6 +28,8 @@ export default function ConnectButton({
 
 		setIsConnected(true);
 		setInChanging(false);
+
+		setParticlesView('core'); // Switch to core view when connected
 	}
 
 	function handleDisconnect() {
@@ -34,8 +38,11 @@ export default function ConnectButton({
 
 		session.close();
 		console.log('Realtime session disconnected successfully!');
+
 		setIsConnected(false);
 		setInChanging(false);
+
+		setParticlesView('space'); // Switch back to space view when disconnected
 	}
 
 	if (!session) {
@@ -55,7 +62,7 @@ export default function ConnectButton({
 	return (
 		<div className={styles.wrapper}>
 			<button
-				className={styles.btn}
+				className={`${styles.btn} ${inChanging ? styles.changing : isConnected ? styles.connected : ''}`}
 				onClick={isConnected ? handleDisconnect : handleConnect}
 				disabled={!ephemeralToken || inChanging}
 			>

@@ -13,9 +13,13 @@ import Transcription, { type SubtitleEntry } from './Transcription';
 
 interface Props {
 	setParticlesView: (view: 'space' | 'core') => void;
+	setAudioFrequency: (freq: number) => void;
 }
 
-export default function RealtimeCore({ setParticlesView }: Props) {
+export default function RealtimeCore({
+	setParticlesView,
+	setAudioFrequency,
+}: Props) {
 	// Use refs to prevent duplicate connections and store session
 	const hasInitialized = useRef(false);
 	const sessionRef = useRef<RealtimeSession | null>(null);
@@ -34,12 +38,74 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 		setIsMuted(newMuted);
 	}
 
-	// Reset mute when disconnected
+	// Audio analyser: tap into the WebRTC remote audio when connected
 	useEffect(() => {
-		if (!isConnected) {
+		if (!isConnected || !sessionRef.current) {
 			setIsMuted(false);
 			setSubtitle(null);
+			setAudioFrequency(0);
+			return;
 		}
+
+		let audioCtx: AudioContext | null = null;
+		let animFrame: number | null = null;
+
+		try {
+			// Access the WebRTC peer connection from the transport layer
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const transport = sessionRef.current.transport as any;
+			const pc: RTCPeerConnection | undefined =
+				transport?.connectionState?.peerConnection;
+
+			if (!pc) {
+				console.warn('No peer connection found for audio analysis');
+				return;
+			}
+
+			// Build a MediaStream from the remote audio track(s)
+			const receivers = pc.getReceivers();
+			const audioTracks = receivers
+				.filter((r) => r.track && r.track.kind === 'audio')
+				.map((r) => r.track);
+
+			if (audioTracks.length === 0) {
+				console.warn('No remote audio tracks found');
+				return;
+			}
+
+			const remoteStream = new MediaStream(audioTracks);
+
+			// Create Web Audio analyser
+			audioCtx = new AudioContext();
+			const source = audioCtx.createMediaStreamSource(remoteStream);
+			const analyser = audioCtx.createAnalyser();
+			analyser.fftSize = 256;
+			source.connect(analyser);
+
+			const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+			// Read frequency data every frame and push average to particles
+			function loop() {
+				analyser.getByteFrequencyData(dataArray);
+				let sum = 0;
+				for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+				const avg = sum / dataArray.length; // 0-255
+				setAudioFrequency(avg);
+				animFrame = requestAnimationFrame(loop);
+			}
+			loop();
+
+			console.log('Audio analyser connected to remote stream');
+		} catch (e) {
+			console.error('Error setting up audio analyser:', e);
+		}
+
+		return () => {
+			if (animFrame != null) cancelAnimationFrame(animFrame);
+			if (audioCtx) audioCtx.close();
+			setAudioFrequency(0);
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isConnected]);
 
 	const showSubtitle = useCallback(

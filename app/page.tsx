@@ -8,11 +8,15 @@ import ParticlesBackground from './components/ParticlesBackground';
 
 export default function Page() {
 	const [particlesView, setParticlesView] = useState<ParticlesView>('space');
+	const [audioFrequency, setAudioFrequency] = useState(0);
 
 	return (
 		<main id="page">
-			<RealtimeCore setParticlesView={setParticlesView} />
-			<ParticlesBackground view={particlesView} />
+			<RealtimeCore
+				setParticlesView={setParticlesView}
+				setAudioFrequency={setAudioFrequency}
+			/>
+			<ParticlesBackground view={particlesView} frequency={audioFrequency} />
 		</main>
 	);
 }

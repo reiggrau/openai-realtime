@@ -6,7 +6,7 @@ import * as THREE from 'three';
 
 import vertexShader from './glsl/vertex.glsl';
 import fragmentShader from './glsl/fragment.glsl';
-import { getCorePositions, getSpacePositions } from './positions';
+import { getGalaxyPositions, getSpacePositions } from './positions';
 
 export default class ThreeJsParticles {
 	// Settings
@@ -86,7 +86,7 @@ export default class ThreeJsParticles {
 		this.spacePositions = getSpacePositions(this.count);
 
 		// Core (spiral galaxy seen from above — Z is up)
-		this.corePositions = getCorePositions(this.count, this.coreSize);
+		this.corePositions = getGalaxyPositions(this.count, this.coreSize);
 
 		const startPositions =
 			this.currentView === 'space' ? this.spacePositions : this.corePositions;
@@ -118,6 +118,7 @@ export default class ThreeJsParticles {
 					uBaseSize: { value: 10.0 },
 					uOpacity: { value: 1.0 },
 					uProgress: { value: 100.0 },
+					uFrequency: { value: 0.0 },
 				},
 				vertexShader,
 				fragmentShader,
@@ -189,6 +190,12 @@ export default class ThreeJsParticles {
 		setGeometryAttribute(this.geometry, 'aTarget', target);
 
 		this.progress = 0;
+	}
+
+	setFrequency(value: number) {
+		if (this.material) {
+			setUniform(this.material, 'uFrequency', value);
+		}
 	}
 
 	tick() {

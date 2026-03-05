@@ -12,16 +12,25 @@ import { useParticles, ParticlesView } from '@/app/hooks/useParticles';
 
 interface Props {
 	view?: ParticlesView;
+	frequency?: number;
 }
 
-export default function ParticlesBackground({ view = 'space' }: Props) {
+export default function ParticlesBackground({
+	view = 'space',
+	frequency = 0,
+}: Props) {
 	const containerRef = useRef<HTMLDivElement>(null);
-	const { setView } = useParticles(containerRef);
+	const { setView, setFrequency } = useParticles(containerRef);
 
 	// Update the particles view whenever the `view` prop changes
 	useEffect(() => {
 		setView(view);
 	}, [view, setView]);
+
+	// Update the frequency uniform whenever frequency changes
+	useEffect(() => {
+		setFrequency(frequency);
+	}, [frequency, setFrequency]);
 
 	return <div ref={containerRef} id="ParticlesBackground" />;
 }

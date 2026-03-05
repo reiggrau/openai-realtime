@@ -29,5 +29,9 @@ export function useParticles(
 		particlesRef.current?.setView(view);
 	}, []);
 
-	return { setView };
+	const setFrequency = useCallback((value: number) => {
+		particlesRef.current?.setFrequency(value);
+	}, []);
+
+	return { setView, setFrequency };
 }

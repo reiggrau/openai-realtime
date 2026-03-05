@@ -1,5 +1,6 @@
 import { RealtimeSession } from '@openai/agents-realtime';
 import { useState } from 'react';
+import styles from './ConnectButton.module.css';
 
 interface Props {
 	session: RealtimeSession | null;
@@ -20,7 +21,6 @@ export default function ConnectButton({
 		if (!session || inChanging) return;
 		setInChanging(true);
 
-		// 1. Connect the session using the fetched ephemeral token
 		await session.connect({ apiKey: ephemeralToken! });
 		console.log('Realtime session connected successfully!');
 
@@ -32,7 +32,6 @@ export default function ConnectButton({
 		if (!session || inChanging) return;
 		setInChanging(true);
 
-		// 1. Disconnect the session
 		session.close();
 		console.log('Realtime session disconnected successfully!');
 		setIsConnected(false);
@@ -40,15 +39,32 @@ export default function ConnectButton({
 	}
 
 	if (!session) {
-		return <button disabled>Loading...</button>;
+		return (
+			<div className={styles.wrapper}>
+				<button className={styles.btn} disabled>
+					<span className={styles.edge} />
+					<span className={styles.edge} />
+					<span className={styles.edge} />
+					<span className={styles.edge} />
+					Loading...
+				</button>
+			</div>
+		);
 	}
 
 	return (
-		<button
-			onClick={isConnected ? handleDisconnect : handleConnect}
-			disabled={!ephemeralToken || inChanging}
-		>
-			{isConnected ? 'Disconnect' : 'Connect'}
-		</button>
+		<div className={styles.wrapper}>
+			<button
+				className={styles.btn}
+				onClick={isConnected ? handleDisconnect : handleConnect}
+				disabled={!ephemeralToken || inChanging}
+			>
+				<span className={styles.edge} />
+				<span className={styles.edge} />
+				<span className={styles.edge} />
+				<span className={styles.edge} />
+				{isConnected ? 'Disconnect' : 'Connect'}
+			</button>
+		</div>
 	);
 }

@@ -11,7 +11,7 @@ export default function Page() {
 
 	return (
 		<main id="page">
-			{/* <RealtimeCore setParticlesView={setParticlesView} /> */}
+			<RealtimeCore setParticlesView={setParticlesView} />
 			<ParticlesBackground view={particlesView} />
 		</main>
 	);

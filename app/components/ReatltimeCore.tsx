@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { RealtimeAgent, RealtimeSession } from '@openai/agents-realtime';
 
+import lookupPolicy from '../lib/tools/lookupPolicy';
+
 import ConnectButton from './ConnectButton';
 
 interface Props {
@@ -45,6 +47,7 @@ export default function RealtimeCore({ setParticlesView }: Props) {
 				const agent = new RealtimeAgent({
 					name: 'Assistant',
 					instructions: 'You are a helpful assistant.',
+					tools: [lookupPolicy], // Add the lookupPolicy tool to the agent
 				});
 
 				const session = new RealtimeSession(agent, {
